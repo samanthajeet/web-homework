@@ -85,7 +85,7 @@ const config = {
     // 0.0.0.0 is available to all network devices
     // unlike default `localhost`.
     host: process.env.HOST || '0.0.0.0',
-    port: process.env.PORT || 3000
+    port: process.env.PORT || 3001
   },
   resolve: {
     extensions: ['.mjs', '.js', '.jsx', '.json']
