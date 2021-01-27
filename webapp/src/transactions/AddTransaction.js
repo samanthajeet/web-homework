@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-// import gql from 'graphql-tag'
-// import { client } from '../network/apollo-client'
+import gql from 'graphql-tag'
+import { client } from '../network/apollo-client'
 import PropTypes from 'prop-types'
 import styled from '@emotion/styled'
 import Button from '../reusableComponents/Button'
@@ -38,28 +38,28 @@ const TransactionButtonsContainer = styled.section`
 display: flex;
 `
 
-// const ADD_TRANSACTION = gql`
-//   mutation AddTransaction($amount: Float, $credit: Boolean, $debit: Boolean, $description: String) {
-//     addTransaction(amount: $amount, credit: $credit, debit: $debit, description: $description) {
-//       id
-//       amount
-//       credit
-//       debit
-//       description
-//     }
-//   }
-// `
+const ADD_TRANSACTION = gql`
+  mutation AddTransaction($amount: Float, $credit: Boolean, $debit: Boolean, $description: String) {
+    addTransaction(amount: $amount, credit: $credit, debit: $debit, description: $description) {
+      id
+      amount
+      credit
+      debit
+      description
+    }
+  }
+`
 
 const AddTransaction = ({ getTransactions, setMessageInfo, setShowAddTransaction }) => {
   const addTransaction = async (variables) => {
-    // let response = await client.mutate({
-    //   variables,
-    //   mutation: ADD_TRANSACTION
-    // })
-    // if (!response.data.addTransaction) {
-    //   console.log('Something went wrong! sad face')
-    //   return
-    // }
+    let response = await client.mutate({
+      variables,
+      mutation: ADD_TRANSACTION
+    })
+    if (!response.data.addTransaction) {
+      console.log('Something went wrong! sad face')
+      return
+    }
     setMessageInfo({
       gif: 'https://media.giphy.com/media/hkiLcRr7zoPe0/giphy.gif',
       message: 'I done messed up and you need to refersh the page to get the most recent transaction',

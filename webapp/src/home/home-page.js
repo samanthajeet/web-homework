@@ -40,7 +40,8 @@ export function Home () {
         <Subtitle>
           That only has, like, 5ish bugs
           <br />
-          Okay, probably more, but look at how sweet this gradient is!
+          Okay, probably more and I didn&apos;t meet all the requirements, but look at how sweet this gradient is!
+          <br />
         </Subtitle>
       </HomeMessageContainer>
     </HomeView>
