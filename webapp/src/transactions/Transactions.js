@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react'
 import gql from 'graphql-tag'
 import { client } from '../network/apollo-client'
 import styled from '@emotion/styled'
-import TransactionCards from './TransactionCards'
 import AddTransaction from './AddTransaction'
+import TransactionRow from '../reusableComponents/TransactionRow'
+import Message from '../reusableComponents/Message'
 // import { Doughnut } from 'react-chartjs-2'
 
 const GET_TRANSACTIONS = gql`
@@ -17,8 +18,21 @@ const GET_TRANSACTIONS = gql`
     }
   }
 `
+const TransactionDashboard = styled.section`
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  width: 95vw;
+`
+
+const LeftTransactionContainer = styled.section`
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+`
 
 const TransactionDisplay = styled.section`
+    width: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -34,23 +48,26 @@ export const Transactions = () => {
   }
 
   const [ transactions, setTransactions ] = useState([])
-  const [ showAddTransaction, setShowAddTransaction ] = useState(false)
+  const [ messageInfo, setMessageInfo ] = useState({ show: false, message: '', gif: '' })
 
   useEffect(() => {
     if (!transactions.length) {
       getTransactions()
     }
   }, [transactions])
-  console.log(transactions)
+
+  const transactionRows = transactions.map((element, i) => <TransactionRow data={element} key={element.id} />)
   return (
-    <TransactionDisplay>
-      { showAddTransaction ? (
-        <AddTransaction getTransactions={getTransactions} setShowAddTransaction={setShowAddTransaction} />
-      ) : (
-        <button onClick={() => setShowAddTransaction(true)}>Add Transaction</button>
-      )
-      }
-      <TransactionCards data={transactions} />
-    </TransactionDisplay>
+    <TransactionDashboard>
+      <LeftTransactionContainer>
+        <AddTransaction getTransactions={getTransactions} setMessageInfo={setMessageInfo} />
+        {messageInfo.show && (
+          <Message gif={messageInfo.gif} message={messageInfo.message} />
+        )}
+      </LeftTransactionContainer>
+      <TransactionDisplay>
+        {transactionRows}
+      </TransactionDisplay>
+    </TransactionDashboard>
   )
 }

@@ -1,79 +1,70 @@
 import React, { useState } from 'react'
-import gql from 'graphql-tag'
-import { client } from '../network/apollo-client'
+// import gql from 'graphql-tag'
+// import { client } from '../network/apollo-client'
 import PropTypes from 'prop-types'
 import styled from '@emotion/styled'
+import Button from '../reusableComponents/Button'
+import Input from '../reusableComponents/Input'
 
 const accentColor = '#FF326F'
 
 const TransactionForm = styled.form`
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap');
+  font-family: 'Poppins', sans-serif;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-evenly;
+  align-items: center;
+  justify-content: space-around;
   min-height: 20rem;
-  width: 30rem;
+  width: 75%;
   padding: 2rem;
   border-radius: 10px;
   margin-bottom: 1rem;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.15), 
-              0 2px 2px rgba(0,0,0,0.15), 
-              0 4px 4px rgba(0,0,0,0.15), 
-              0 8px 8px rgba(0,0,0,0.15);
-
-  button {
-    padding: .5rem;
-    margin-right: .5rem;
-    border-radius: 15px;
-    border: none;
-    min-width: 6rem;
-  }
-  
-  button:hover {
-    cursor: pointer;
-  }
-
-  input {
-    border: none;
-    border-bottom: 2px solid black;
-    width: 100%;
-    height: 3rem;
-    font-size: 2rem;
-  }
+  box-shadow: 0 1px 10px rgba(0,0,0,0.1);
 
   .selected {
-    background: ${accentColor};
-    color: white;
-  }
-  .transactionType:hover {
-    background: ${accentColor};
-    color: white;
-  }
-`
-
-const ADD_TRANSACTION = gql`
-  mutation AddTransaction($amount: Float, $credit: Boolean, $debit: Boolean, $description: String) {
-    addTransaction(amount: $amount, credit: $credit, debit: $debit, description: $description) {
-      id
-      amount
-      credit
-      debit
-      description
+      background-color: ${accentColor};
+      color: white;
+      border: 1px solid ${accentColor}
     }
+  
+  .transaction-type:hover {
+    background-color: ${accentColor};
+    border: 1px solid ${accentColor}
   }
 `
 
-const AddTransaction = ({ getTransactions, setShowAddTransaction }) => {
+const TransactionButtonsContainer = styled.section`
+display: flex;
+`
+
+// const ADD_TRANSACTION = gql`
+//   mutation AddTransaction($amount: Float, $credit: Boolean, $debit: Boolean, $description: String) {
+//     addTransaction(amount: $amount, credit: $credit, debit: $debit, description: $description) {
+//       id
+//       amount
+//       credit
+//       debit
+//       description
+//     }
+//   }
+// `
+
+const AddTransaction = ({ getTransactions, setMessageInfo, setShowAddTransaction }) => {
   const addTransaction = async (variables) => {
-    let response = await client.mutate({
-      variables,
-      mutation: ADD_TRANSACTION
+    // let response = await client.mutate({
+    //   variables,
+    //   mutation: ADD_TRANSACTION
+    // })
+    // if (!response.data.addTransaction) {
+    //   console.log('Something went wrong! sad face')
+    //   return
+    // }
+    setMessageInfo({
+      gif: 'https://media.giphy.com/media/hkiLcRr7zoPe0/giphy.gif',
+      message: 'I done messed up and you need to refersh the page to get the most recent transaction',
+      show: true
     })
-    if (!response.data.addTransaction) {
-      console.log('Something went wrong! sad face')
-      return
-    }
-    setShowAddTransaction(false)
     getTransactions()
   }
 
@@ -93,8 +84,7 @@ const AddTransaction = ({ getTransactions, setShowAddTransaction }) => {
   }
 
   const cancelForm = () => {
-    setBody({})
-    setShowAddTransaction()
+    setBody({ amount: 0, credit: false, debit: true, description: '' })
   }
 
   return (
@@ -105,36 +95,40 @@ const AddTransaction = ({ getTransactions, setShowAddTransaction }) => {
       }}
     >
       <section>
-        <button
-          className={`transactionType ${body.debit ? 'selected' : ''}`}
-          onClick={() => setBody({ ...body, debit: true, credit: false })}
-        >
-          Expense
-        </button>
-        <button
-          className={` transactionType ${body.credit ? 'selected' : ''}`}
-          onClick={() => setBody({ ...body, debit: false, credit: true })}
-        >
-          Income
-        </button>
+        <Button
+          callBack={() => setBody({ ...body, debit: true, credit: false })}
+          customStyle='transaction-type'
+          label='Expense'
+          selected={`${body.debit ? 'selected' : ''}`}
+        />
+        <Button
+          callBack={() => setBody({ ...body, debit: false, credit: true })}
+          customStyle='transaction-type'
+          label='Income'
+          selected={`${body.credit ? 'selected' : ''}`}
+        />
       </section>
       <label htmlFor='amount'>Amount</label>
-      <input id='amount' name='amount' onChange={handleChange} step='0.01' type='number' />
+      <Input callBack={handleChange} name='amount' placeholder='amount' type='number' value={body.amount} />
       <label htmlFor='description'>Description</label>
-      <input id='description' name='description' onChange={handleChange} />
-      <button type='submit'>add</button>
-      <button onClick={cancelForm}>cancel</button>
+      <Input callBack={handleChange} name='description' placeholder='description' type='text' value={body.description} />
+      <TransactionButtonsContainer>
+        <Button callBack={cancelForm} label='cancel' />
+        <Button label='add' type='submit' />
+      </TransactionButtonsContainer>
     </TransactionForm>
   )
 }
 
 AddTransaction.defaultProps = {
   getTransactions: () => console.log('do something'),
+  setMessageInfo: () => console.log('message!'),
   setShowAddTransaction: () => console.log('close the thing')
 }
 
 AddTransaction.propTypes = {
   getTransactions: PropTypes.func,
+  setMessageInfo: PropTypes.func,
   setShowAddTransaction: PropTypes.func
 }
 

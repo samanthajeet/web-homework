@@ -21,6 +21,16 @@ const mutation = new GraphQLObjectType({
         return (new TransactionModel({ user_id, description, merchant_id, debit, credit, amount })).save()
       }
     }
+    // attempt at writing delete mutation
+    // deleteTransaction: {
+    //   type: TransactionType,
+    //   arg: {
+    //     id: { type: GraphQLString }
+    //   },
+    //   resolve (parentValue, {id}){
+    //     return TransactionModel.
+    //   }
+    // }
   }
 })
 
