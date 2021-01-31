@@ -1,5 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import { client } from '../network/apollo-client'
+import { DELETE_TRANSACTION, GET_TRANSACTIONS } from '../queries/queries'
+import UpdateModal from '../transactions/UpdateModal'
+import Button from './Button'
 import styled from '@emotion/styled'
 
 const credit = '#a4e374'
@@ -13,7 +17,7 @@ const TransactionItem = styled.article`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 500px;
+  max-width: 600px;
   border-radius: 15px;
   padding: 5px;
   margin: 5px;
@@ -27,6 +31,9 @@ const TransactionItem = styled.article`
     color: ${debit}
   }
 
+  :hover {
+    cursor: pointer
+  }
 `
 const TransactionDetail = styled.section`
   display: flex;
@@ -37,16 +44,35 @@ const TransactionDetail = styled.section`
 const TransactionType = styled.section`
   display: flex;
   justify-content: center;
-  width: 15%;
+  width: 10%;
   font-size: 1.5em;
 `
 
-const TransactionRow = ({ data }) => {
+const TransactionAmount = styled.div`
+  width: 20%;
+`
+const TransactionRow = ({ data, setTransactions }) => {
+  const [showModal, setShowModal] = useState(false)
+
+  const deleteTransaction = async (id) => {
+    await client.mutate({
+      variables: {
+        transactionId: id
+      },
+      mutation: DELETE_TRANSACTION,
+      refetchQueries: [{ query: GET_TRANSACTIONS }]
+    })
+    setShowModal(false)
+  }
   return (
     <TransactionItem>
       <TransactionType className={`${data.credit ? 'credit' : 'debit'}`}>{data.credit ? '+' : '-'}</TransactionType>
       <TransactionDetail>{data.description}</TransactionDetail>
-      <TransactionDetail className={`${data.credit ? 'credit' : 'debit'}`}>${data.amount}</TransactionDetail>
+      <TransactionAmount className={`${data.credit ? 'credit' : 'debit'}`}>${data.amount}</TransactionAmount>
+      <Button callBack={() => setShowModal(true)} label='update' />
+      {showModal && (
+        <UpdateModal closeModal={() => setShowModal(false)} data={data} deleteTransaction={deleteTransaction} />
+      )}
     </TransactionItem>
   )
 }
@@ -56,7 +82,8 @@ TransactionRow.defaultProps = {
 }
 
 TransactionRow.propTypes = {
-  data: PropTypes.object
+  data: PropTypes.object,
+  setTransactions: PropTypes.func.isRequired
 }
 
 export default TransactionRow

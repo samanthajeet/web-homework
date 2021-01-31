@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import gql from 'graphql-tag'
 import { client } from '../network/apollo-client'
+import { ADD_TRANSACTION, GET_TRANSACTIONS } from '../queries/queries'
 import PropTypes from 'prop-types'
 import styled from '@emotion/styled'
 import Button from '../reusableComponents/Button'
@@ -38,34 +38,14 @@ const TransactionButtonsContainer = styled.section`
 display: flex;
 `
 
-const ADD_TRANSACTION = gql`
-  mutation AddTransaction($amount: Float, $credit: Boolean, $debit: Boolean, $description: String) {
-    addTransaction(amount: $amount, credit: $credit, debit: $debit, description: $description) {
-      id
-      amount
-      credit
-      debit
-      description
-    }
-  }
-`
-
-const AddTransaction = ({ getTransactions, setMessageInfo, setShowAddTransaction }) => {
+const AddTransaction = ({ setMessageInfo, setShowAddTransaction, setTransactions }) => {
   const addTransaction = async (variables) => {
-    let response = await client.mutate({
+    await client.mutate({
       variables,
-      mutation: ADD_TRANSACTION
+      mutation: ADD_TRANSACTION,
+      refetchQueries: [{ query: GET_TRANSACTIONS }]
+
     })
-    if (!response.data.addTransaction) {
-      console.log('Something went wrong! sad face')
-      return
-    }
-    setMessageInfo({
-      gif: 'https://media.giphy.com/media/hkiLcRr7zoPe0/giphy.gif',
-      message: 'I done messed up and you need to refersh the page to get the most recent transaction',
-      show: true
-    })
-    getTransactions()
   }
 
   const [body, setBody] = useState({ amount: 0, credit: false, debit: true, description: '' })
@@ -121,15 +101,14 @@ const AddTransaction = ({ getTransactions, setMessageInfo, setShowAddTransaction
 }
 
 AddTransaction.defaultProps = {
-  getTransactions: () => console.log('do something'),
   setMessageInfo: () => console.log('message!'),
   setShowAddTransaction: () => console.log('close the thing')
 }
 
 AddTransaction.propTypes = {
-  getTransactions: PropTypes.func,
   setMessageInfo: PropTypes.func,
-  setShowAddTransaction: PropTypes.func
+  setShowAddTransaction: PropTypes.func,
+  setTransactions: PropTypes.func
 }
 
 export default AddTransaction
