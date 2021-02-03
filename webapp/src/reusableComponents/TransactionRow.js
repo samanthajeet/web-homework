@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { client } from '../network/apollo-client'
+import { useSelector } from 'react-redux'
 import { DELETE_TRANSACTION, GET_TRANSACTIONS } from '../queries/queries'
+import { toRomanNumerals } from '../helperFunctions/helperFunctions'
 import UpdateModal from '../transactions/UpdateModal'
 import Button from './Button'
 import styled from '@emotion/styled'
@@ -51,8 +53,13 @@ const TransactionType = styled.section`
 const TransactionAmount = styled.div`
   width: 20%;
 `
-const TransactionRow = ({ data, setTransactions }) => {
+const TransactionRow = ({ data }) => {
   const [showModal, setShowModal] = useState(false)
+  const {
+    romanNumerals
+  } = useSelector((store) => ({
+    romanNumerals: store.userSettings.romanNumerals
+  }))
 
   const deleteTransaction = async (id) => {
     await client.mutate({
@@ -68,7 +75,7 @@ const TransactionRow = ({ data, setTransactions }) => {
     <TransactionItem>
       <TransactionType className={`${data.credit ? 'credit' : 'debit'}`}>{data.credit ? '+' : '-'}</TransactionType>
       <TransactionDetail>{data.description}</TransactionDetail>
-      <TransactionAmount className={`${data.credit ? 'credit' : 'debit'}`}>${data.amount}</TransactionAmount>
+      <TransactionAmount className={`${data.credit ? 'credit' : 'debit'}`}>${romanNumerals ? toRomanNumerals(data.amount) : data.amount}</TransactionAmount>
       <Button callBack={() => setShowModal(true)} label='update' />
       {showModal && (
         <UpdateModal closeModal={() => setShowModal(false)} data={data} deleteTransaction={deleteTransaction} />
@@ -82,8 +89,7 @@ TransactionRow.defaultProps = {
 }
 
 TransactionRow.propTypes = {
-  data: PropTypes.object,
-  setTransactions: PropTypes.func.isRequired
+  data: PropTypes.object
 }
 
 export default TransactionRow

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-// import { client } from '../network/apollo-client'
+import { client } from '../network/apollo-client'
 import PropTypes from 'prop-types'
-// import { GET_TRANSACTIONS, UPDATE_TRANSACTION } from '../queries/queries'
+import { GET_TRANSACTIONS, UPDATE_TRANSACTION } from '../queries/queries'
 import Button from '../reusableComponents/Button'
 import Input from '../reusableComponents/Input'
 import styled from '@emotion/styled'
@@ -27,9 +27,9 @@ const Modal = styled.section`
   border-radius: 15px;
 }
 
-.close {
-  float: right;
-}
+.edit-btns {
+    margin-bottom: .5em;
+  }
 `
 
 const EditForm = styled.form`
@@ -37,6 +37,8 @@ const EditForm = styled.form`
   flex-direction: column;
   align-items: center;
   margin-bottom: 2em;
+
+
 `
 const DetailDisplay = styled.section`
   display: flex;
@@ -47,33 +49,38 @@ const DetailDisplay = styled.section`
 
 const UpdateModal = ({ closeModal, data, deleteTransaction }) => {
   const [editing, setEditing] = useState(false)
-  // const updateTransaction = async () => {
-  //   await client.mutate({
-  //     variables: {
-  //       transaction: {
-  //         // id: Id,
-  //         // user_id: userId,
-  //         // merchant_id: merchantId,
-  //         // debit: transactionType === 'debit',
-  //         // credit: transactionType === 'credit',
-  //         // amount: parseNumber(amount),
-  //         // description: description
-  //       }
-  //     },
-  //     mutation: UPDATE_TRANSACTION,
-  //     refetchQueries: [{ query: GET_TRANSACTIONS }]
-  //   })
-  // }
-  console.log(data)
+  const [updateBody, setUpdateBody] = useState({ amount: data.amount, description: data.description })
+  const handleChange = (e) => {
+    const { value, name, type } = e.target
+    if (type === 'number') {
+      setUpdateBody({ ...updateBody, [name]: +value })
+      return
+    }
+    setUpdateBody({ ...updateBody, [name]: value })
+  }
+  const updateTransaction = async () => {
+    await client.mutate({
+      variables: {
+        transaction: {
+          id: data.id,
+          amount: updateBody.amount,
+          description: updateBody.description
+        }
+      },
+      mutation: UPDATE_TRANSACTION,
+      refetchQueries: [{ query: GET_TRANSACTIONS }]
+    })
+  }
+
   return (
     <Modal>
       <section className='modal-content'>
         {editing ? (
           <EditForm>
             <label htmlFor='description'>Amount</label>
-            <Input name='amount' placeholder='amount' type='number' value={data.amount} />
+            <Input callBack={handleChange} name='amount' placeholder='amount' type='number' value={updateBody.amount} />
             <label htmlFor='description'>Description</label>
-            <Input name='description' placeholder='description' type='text' value={data.description} />
+            <Input callBack={handleChange} name='description' placeholder='description' type='text' value={updateBody.description} />
           </EditForm>
         ) : (
           <DetailDisplay>
@@ -83,13 +90,16 @@ const UpdateModal = ({ closeModal, data, deleteTransaction }) => {
             <p>{data.description}</p>
           </DetailDisplay>
         )}
-        <Button callBack={closeModal} label='close' />
-        <Button callBack={() => deleteTransaction(data.id)} label='delete' />
         {editing ? (
-          <Button callBack={() => setEditing(false)} label='Cancel Edit' />
+          <section className='edit-btns'>
+            <Button callBack={() => setEditing(false)} label='Cancel Edit' />
+            <Button callBack={updateTransaction} isDisabled label='Update' />
+          </section>
         ) : (
           <Button callBack={() => setEditing(true)} label='Edit' />
         )}
+        <Button callBack={closeModal} label='close' />
+        <Button callBack={() => deleteTransaction(data.id)} label='delete' />
       </section>
     </Modal>
   )

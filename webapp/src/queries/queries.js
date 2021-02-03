@@ -8,34 +8,32 @@ const GET_TRANSACTIONS = gql`
       credit
       debit
       description
+      category
     }
   }
 `
 
 const ADD_TRANSACTION = gql`
-  mutation AddTransaction($amount: Float, $credit: Boolean, $debit: Boolean, $description: String) {
-    addTransaction(amount: $amount, credit: $credit, debit: $debit, description: $description) {
+  mutation AddTransaction($amount: Float, $credit: Boolean, $debit: Boolean, $description: String, $category: String) {
+    addTransaction(amount: $amount, credit: $credit, debit: $debit, description: $description, category: $category) {
       id
       amount
       credit
       debit
       description
+      category
     }
   }
 `
 const UPDATE_TRANSACTION = gql`
-mutation UpdateTransaction($transaction: TransactionInput!) {
+mutation UpdateTransaction($transaction: transaction) {
   updateTransaction(transaction: $transaction) {
     id
     description
     amount
-    merchant_id
-    credit
-    debit
   }
 }
 `
-
 const DELETE_TRANSACTION = gql`
   mutation DeleteTransaction($transactionId: String) {
     deleteTransaction(transactionId: $transactionId) {

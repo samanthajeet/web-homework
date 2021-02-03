@@ -21,15 +21,16 @@ const ButtonElement = styled.button`
     }
 `
 
-const Button = ({ callBack, customStyle, label, selected, type }) => {
+const Button = ({ callBack, customStyle, isDisabled, label, selected, type }) => {
   return (
-    <ButtonElement className={`${selected ? 'selected' : ''} ${customStyle}`} onClick={callBack} type={type}>{label}</ButtonElement>
+    <ButtonElement className={`${selected ? 'selected' : ''} ${customStyle}`} disabled={isDisabled} onClick={callBack} type={type}>{label}</ButtonElement>
   )
 }
 
 Button.defaultProps = {
   callBack: () => console.log('do nothing'),
   customStyle: '',
+  isDisabled: false,
   label: '',
   selected: false,
   type: 'button'
@@ -38,6 +39,7 @@ Button.defaultProps = {
 Button.propTypes = {
   callBack: PropTypes.func,
   customStyle: PropTypes.string,
+  isDisabled: PropTypes.bool,
   label: PropTypes.string,
   selected: PropTypes.bool,
   type: PropTypes.string

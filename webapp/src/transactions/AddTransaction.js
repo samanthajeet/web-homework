@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { client } from '../network/apollo-client'
 import { ADD_TRANSACTION, GET_TRANSACTIONS } from '../queries/queries'
-import PropTypes from 'prop-types'
 import styled from '@emotion/styled'
 import Button from '../reusableComponents/Button'
 import Input from '../reusableComponents/Input'
@@ -15,7 +14,7 @@ const TransactionForm = styled.form`
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  min-height: 20rem;
+  min-height: 25rem;
   width: 75%;
   padding: 2rem;
   border-radius: 10px;
@@ -33,22 +32,38 @@ const TransactionForm = styled.form`
     border: 1px solid ${accentColor}
   }
 `
-
-const TransactionButtonsContainer = styled.section`
-display: flex;
+const TransactionType = styled.section`
+  margin-bottom: 1em;
 `
 
-const AddTransaction = ({ setMessageInfo, setShowAddTransaction, setTransactions }) => {
+const TransactionButtonsContainer = styled.section`
+  display: flex;
+  margin-top: 1em;
+`
+
+const CategorySelect = styled.section`
+  display: flex;
+  flex-direction: column;
+    align-items: center;
+    min-height: 7em;
+    justify-content: space-evenly;
+  select {
+    padding: 1em;
+    border-radius: 15px;
+  }
+`
+
+const AddTransaction = () => {
+  const categories = ['Clothing', 'Food', 'Housing', 'Medicla/Health Care', 'Personal', 'Subscriptions', 'Transportation', 'Utilities']
+  const [body, setBody] = useState({ amount: 0, credit: false, debit: true, description: '', category: null })
   const addTransaction = async (variables) => {
     await client.mutate({
       variables,
       mutation: ADD_TRANSACTION,
       refetchQueries: [{ query: GET_TRANSACTIONS }]
-
     })
+    setBody({ amount: 0, credit: false, debit: true, description: '', category: null })
   }
-
-  const [body, setBody] = useState({ amount: 0, credit: false, debit: true, description: '' })
 
   const handleChange = (e) => {
     const { value, name, type } = e.target
@@ -64,8 +79,12 @@ const AddTransaction = ({ setMessageInfo, setShowAddTransaction, setTransactions
   }
 
   const cancelForm = () => {
-    setBody({ amount: 0, credit: false, debit: true, description: '' })
+    setBody({ amount: 0, credit: false, debit: true, description: '', category: null })
   }
+
+  const selectCategoryOptions = categories.map(element => (
+    <option key={element} value={element}>{element}</option>
+  ))
 
   return (
     <TransactionForm
@@ -74,7 +93,7 @@ const AddTransaction = ({ setMessageInfo, setShowAddTransaction, setTransactions
         addTransaction(body)
       }}
     >
-      <section>
+      <TransactionType>
         <Button
           callBack={() => setBody({ ...body, debit: true, credit: false })}
           customStyle='transaction-type'
@@ -87,28 +106,26 @@ const AddTransaction = ({ setMessageInfo, setShowAddTransaction, setTransactions
           label='Income'
           selected={`${body.credit ? 'selected' : ''}`}
         />
-      </section>
+      </TransactionType>
       <label htmlFor='amount'>Amount</label>
       <Input callBack={handleChange} name='amount' placeholder='amount' type='number' value={body.amount} />
       <label htmlFor='description'>Description</label>
       <Input callBack={handleChange} name='description' placeholder='description' type='text' value={body.description} />
+      {body.debit && (
+        <CategorySelect>
+          <label htmlFor='description'>Category</label>
+          <select id='categories' name='category' onBlur={handleChange} value={body.category} >
+            <option value={null}>Select category</option>
+            {selectCategoryOptions}
+          </select>
+        </CategorySelect>
+      )}
       <TransactionButtonsContainer>
         <Button callBack={cancelForm} label='cancel' />
         <Button label='add' type='submit' />
       </TransactionButtonsContainer>
     </TransactionForm>
   )
-}
-
-AddTransaction.defaultProps = {
-  setMessageInfo: () => console.log('message!'),
-  setShowAddTransaction: () => console.log('close the thing')
-}
-
-AddTransaction.propTypes = {
-  setMessageInfo: PropTypes.func,
-  setShowAddTransaction: PropTypes.func,
-  setTransactions: PropTypes.func
 }
 
 export default AddTransaction

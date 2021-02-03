@@ -15,13 +15,14 @@ const HomeMessageContainer = styled.section`
   height: 50vh;
 `
 
-const Subtitle = styled.h5`
+const Subtitle = styled.h3`
+
 `
 
 const HomeMessage = styled.h1`
     background: -webkit-linear-gradient(217deg,#da4302, #ff9a00);
     font-size: 6em;
-    line-height: 1em;
+    line-height: 1.25em;
     min-height: 2.5em;
     margin: 0;
     -webkit-background-clip: text;
@@ -36,12 +37,11 @@ export function Home () {
           Super Sweet
           <br />
           Expense Tracking App
+          <br />
+          Take Two
         </HomeMessage>
         <Subtitle>
-          That only has, like, 5ish bugs
-          <br />
-          Okay, probably more and I didn&apos;t meet all the requirements, but look at how sweet this gradient is!
-          <br />
+          New and Improved!
         </Subtitle>
       </HomeMessageContainer>
     </HomeView>

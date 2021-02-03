@@ -8,11 +8,7 @@ const TransactionInputType = new GraphQLInputObjectType({
   name: 'TransactionInput',
   fields: () => ({
     id: { type: GraphQLString },
-    user_id: { type: GraphQLString },
     description: { type: GraphQLString },
-    merchant_id: { type: GraphQLString },
-    debit: { type: GraphQLBoolean },
-    credit: { type: GraphQLBoolean },
     amount: { type: GraphQLFloat }
   })
 })
@@ -28,11 +24,12 @@ const mutation = new GraphQLObjectType({
         merchant_id: { type: GraphQLString },
         debit: { type: GraphQLBoolean },
         credit: { type: GraphQLBoolean },
-        amount: { type: GraphQLFloat }
+        amount: { type: GraphQLFloat },
+        category: { type: GraphQLString }
       },
       /* eslint-disable-next-line camelcase */
-      resolve (parentValue, { user_id, description, merchant_id, debit, credit, amount }) {
-        return (new TransactionModel({ user_id, description, merchant_id, debit, credit, amount })).save()
+      resolve (parentValue, { user_id, description, merchant_id, debit, credit, amount, category }) {
+        return (new TransactionModel({ user_id, description, merchant_id, debit, credit, amount, category })).save()
       }
     },
     updateTransaction: {
